@@ -1,0 +1,59 @@
+#if jdni is present then there no need to setup  DATA SOURCE PROPS ,
+#spring.datasource.primary.jndi-name=jdbc/eai-one-web-aftersales-dw-ds
+#spring.datasource.postgres.jndi-name=jdbc/eai-oneweb-aftersales-services-ds
+
+#DATA SOURCE PROPS
+#spring.datasource.url=jdbc:db2://MVSDSYS-BGN.americas.bg.corpintra.net:450/DBW2
+#spring.datasource.username=stareai
+#spring.datasource.password={xor}LCs+LTo+Ng==
+#spring.datasource.driver-class-name=com.ibm.db2.jcc.DB2Driver
+
+
+#DATA SOURCE PROPS for postgres db
+#spring.datasource.postGres.url=jdbc:postgresql://53.15.58.4:5432/mobtriserverless
+#spring.datasource.postGres.username=tridbuser
+#spring.datasource.postGres.password={xor}NC0TahYbJ24QbWgNayU9bg==
+#spring.datasource.postGres.driver-class-name=org.postgresql.Driver
+
+#HIBERNATE AND JPA
+spring.jpa.properties.hibernate.default_schema= schema_name
+logging.level.org.hibernate.SQL=DEBUG
+#spring.jpa.hibernate.ddl-auto=validate
+
+#Actuator
+management.server.servlet.context-path=/eai-actuator
+management.security.enabled= false
+
+@Repository("daointerface") on daoimpl class daointerface
+
+
+#JDBC WITH PREPAREDSTATEMENTS
+String query=query="SELECT NUM_DLR_MTD_RANK_POSN,CNT_ACTV_DLR,CDE_DLR  FROM DB2DBA.DLR_RANK WHERE CDE_DLR= ?";
+
+		 System.out.println("query is ...." +query);
+		 try{
+
+
+			 //dealerranks=jdbcTemplate.queryForList(query);
+
+			 dealerranks= jdbcTemplate.query(query, new PreparedStatementSetter() {
+
+						 @Override
+						 public void setValues(PreparedStatement pstmt) throws SQLException {
+							 pstmt.setString(1, uSDealerCode);
+
+						 }
+					 },
+					 new BeanPropertyRowMapper(Map.class));
+
+
+			 System.out.println(" dealerranks ***inside try db call..*****.." +dealerranks);
+			 System.out.println("dealerranks  ***&&&&&..*****.." +dealerranks.size());
+		 }
+		 catch (Exception e) {
+			// TODO: handle exception
+			 System.out.println("error in  executing query"+e);
+		}
+
+#removing vernability
+String input = HtmlUtils.htmlEscape(input);
