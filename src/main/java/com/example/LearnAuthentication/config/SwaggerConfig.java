@@ -76,6 +76,7 @@ package com.example.LearnAuthentication.config;
 //    }
 //}
 
+/* approch 2
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -85,6 +86,8 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.info.Contact;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SwaggerConfig {
@@ -112,11 +115,45 @@ public class SwaggerConfig {
                 .addSecurityItem(new SecurityRequirement()
                         .addList(SECURITY_SCHEME_NAME)) // Attach the security scheme globally
                 .components(new Components()
-                        .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
+                                .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
                                 .name(SECURITY_SCHEME_NAME)
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
-                                .bearerFormat("JWT")));
-    }
+                                .bearerFormat("JWT"))
+                                );
+
+        /*
+        .addList("Authorization-Token")) // Attach the customized security scheme globally
+            .components(new Components()
+                    .addSecuritySchemes("Authorization-Token", new SecurityScheme()
+                            .name("Authorization") // Name of the header
+                            .type(SecurityScheme.Type.APIKEY) // Use API Key type for custom header behavior
+                            .in(SecurityScheme.In.HEADER) // Specify that the token will be in the header
+                            .description("JWT token without Bearer prefix"))); // Custom description
+         */
+
+//    }
+//}
+
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@OpenAPIDefinition(info = @Info(title = "LearnAuthentication Spring Boot 3 Auth APIs", version = "1.0",
+        description = "Auth application documentation", contact = @Contact(name = "Mohd Talib")),
+        security = {@SecurityRequirement(name = "bearerToken"), @SecurityRequirement(name = "cookie")})
+@SecuritySchemes({
+        @SecurityScheme(name = "bearerToken", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT"),
+        @SecurityScheme(name = "cookie", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER, paramName = "cookie")
+})
+public class SwaggerConfig {
 }
 

@@ -1,4 +1,5 @@
 package com.example.LearnAuthentication.entity;
+import com.example.LearnAuthentication.model.ERole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class Roles {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private long id;
-    private String name;
+    @Enumerated(EnumType.STRING) // Store the enum as a String
+    @Column(name = "NAME", nullable = false, unique = true)
+    private ERole name;
 
 }

@@ -4,7 +4,10 @@ import com.example.LearnAuthentication.dto.UserRequest;
 import com.example.LearnAuthentication.dto.UserResponse;
 import com.example.LearnAuthentication.entity.UserInfo;
 import com.example.LearnAuthentication.repository.UserRepository;
+import com.example.LearnAuthentication.service.JwtService;
+import com.example.LearnAuthentication.service.TokenBlacklistService;
 import com.example.LearnAuthentication.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    TokenBlacklistService tokenBlacklistService;
 
     ModelMapper modelMapper = new ModelMapper();
 
@@ -81,5 +90,13 @@ public class UserServiceImpl implements UserService {
         List<UserInfo> users = (List<UserInfo>) userRepository.findAll();
         Type setOfDTOsType = new TypeToken<List<UserResponse>>(){}.getType();
         return modelMapper.map(users, setOfDTOsType);
+    }
+
+    @Override
+    public String logout(HttpServletRequest request) {
+        //String token = jwtService.extractTokenFromRequest(request);
+        tokenBlacklistService.addToBlacklist(request);
+        // Clear any session-related data if necessary
+        return "Logged out successfully";
     }
 }
