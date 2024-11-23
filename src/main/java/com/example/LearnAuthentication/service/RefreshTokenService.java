@@ -32,14 +32,14 @@ public class RefreshTokenService {
         Optional<RefreshToken> existingToken = refreshTokenRepository.findByUserInfoId(userInfo.getId());
         if (existingToken.isPresent()) {
             RefreshToken refreshToken = existingToken.get();
-            refreshToken.setExpiryDate(Instant.now().plusMillis(60000000));  // Reset expiry date
+            refreshToken.setExpiryDate(Instant.now().plusMillis(600000000));  // Reset expiry date 100 min
             return refreshTokenRepository.save(refreshToken);
         } else {
             // If no existing token, create a new one
             RefreshToken newRefreshToken = RefreshToken.builder()
                     .userInfo(userInfo)
                     .token(UUID.randomUUID().toString())
-                    .expiryDate(Instant.now().plusMillis(60000000))  // Set expiry date
+                    .expiryDate(Instant.now().plusMillis(600000000))  // Set expiry date
                     .build();
             return refreshTokenRepository.save(newRefreshToken);
         }

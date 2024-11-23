@@ -5,4 +5,3 @@ public class CustomServiceException extends RuntimeException {
         super(message);
     }
 }
-

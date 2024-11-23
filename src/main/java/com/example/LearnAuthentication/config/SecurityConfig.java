@@ -1,8 +1,11 @@
 package com.example.LearnAuthentication.config;
 
+import com.example.LearnAuthentication.handler.AccessDeniedHandlerJwt;
+import com.example.LearnAuthentication.handler.AuthenticationEntryPointJwt;
 import com.example.LearnAuthentication.service.JwtAuthFilter;
 import com.example.LearnAuthentication.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -30,26 +32,30 @@ public class SecurityConfig{
 
     @Autowired
     JwtAuthFilter jwtAuthFilter;
+    @Autowired
+    private AuthenticationEntryPointJwt authenticationEntryPointJwt;
+    @Autowired
+    private AccessDeniedHandlerJwt accessDeniedHandlerJwt;
+
+    @Value("${security.uri.white-list}")
+    private String AUTH_WHITELIST;
 
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl();
     }
 
-    private static final String[] AUTH_WHITELIST = {
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/api/v1/login"
-    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)//.csrf().disable()
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/h2-console/**","/api/v1/login","/api/v1/refreshToken","/swagger-ui/**","/v3/api-docs/**").permitAll()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(AUTH_WHITELIST.split(",")).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception.accessDeniedHandler(accessDeniedHandlerJwt)
+                .authenticationEntryPoint(authenticationEntryPointJwt))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
