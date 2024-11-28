@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -140,7 +141,7 @@ public class UserController {
     })
     @PostMapping(value = "/save")
     public ResponseEntity<UserResponse> saveUser(
-            @Parameter(description = "User details to create a new user") @RequestBody UserRequest userRequest) {
+            @Parameter(description = "User details to create a new user")  @Valid @RequestBody UserRequest userRequest) {
         UserResponse userResponse = userService.saveUser(userRequest);
         return ResponseEntity.ok(userResponse);
     }
