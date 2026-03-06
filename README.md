@@ -27,3 +27,12 @@ For local/dev profile:
 ```bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
+
+## Custom actuator example
+A custom actuator endpoint is available at:
+- `/monitoring/springVersion`
+
+Example response:
+```json
+{"version":"6.1.x"}
+```
