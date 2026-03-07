@@ -1,6 +1,6 @@
 package com.example.LearnAuthentication.dto;
 
-import com.example.LearnAuthentication.entity.Roles;
+import com.example.LearnAuthentication.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class UserResponse {
 
     private Long id;
     private String username;
-    private Set<Roles> roles;
+    private Set<UserRole> roles;
 
 
 }

@@ -4,75 +4,67 @@ import com.example.LearnAuthentication.dto.UserRequest;
 import com.example.LearnAuthentication.dto.UserResponse;
 import com.example.LearnAuthentication.entity.UserInfo;
 import com.example.LearnAuthentication.repository.UserRepository;
-import com.example.LearnAuthentication.service.JwtService;
-import com.example.LearnAuthentication.service.TokenBlacklistService;
 import com.example.LearnAuthentication.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    TokenBlacklistService tokenBlacklistService;
-
-    ModelMapper modelMapper = new ModelMapper();
-
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public UserResponse saveUser(UserRequest userRequest) {
-        if(userRequest.getUsername() == null){
-            throw new RuntimeException("Parameter username is not found in request..!!");
-        } else if(userRequest.getPassword() == null){
-            throw new RuntimeException("Parameter password is not found in request..!!");
-        }
-
-
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        UserDetails userDetail = (UserDetails) authentication.getPrincipal();
 //        String usernameFromAccessToken = userDetail.getUsername();
 //
 //        UserInfo currentUser = userRepository.findByUsername(usernameFromAccessToken);
 
-        UserInfo savedUser = null;
+        // UserInfo savedUser = null;
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String rawPassword = userRequest.getPassword();
-        String encodedPassword = encoder.encode(rawPassword);
+        // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        // String rawPassword = userRequest.getPassword();
+        // String encodedPassword = encoder.encode(rawPassword);
 
+        
         UserInfo user = modelMapper.map(userRequest, UserInfo.class);
-        user.setPassword(encodedPassword);
-        if(userRequest.getId() != null){
-            UserInfo oldUser = userRepository.findFirstById(userRequest.getId());
-            if(oldUser != null){
-                oldUser.setId(user.getId());
-                oldUser.setPassword(user.getPassword());
-                oldUser.setUsername(user.getUsername());
-                oldUser.setRoles(user.getRoles());
+        // Using the shared PasswordEncoder bean keeps hashing strategy centralized and reusable.`r`n        
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-                savedUser = userRepository.save(oldUser);
-            } else {
-                throw new RuntimeException("Can't find record with identifier: " + userRequest.getId());
+        UserInfo savedUser;
+        if (userRequest.getId() != null) {
+            UserInfo oldUser = userRepository.findFirstById(userRequest.getId());
+            if (oldUser == null) {
+                throw new NoSuchElementException("User not found for id: " + userRequest.getId());
             }
+            oldUser.setUsername(user.getUsername());
+            oldUser.setPassword(user.getPassword());
+            oldUser.setRoles(user.getRoles());
+            savedUser = userRepository.save(oldUser);
         } else {
+            if (userRepository.existsByUsername(userRequest.getUsername())) {
+                throw new IllegalArgumentException("Username already exists: " + userRequest.getUsername());
+            }
             savedUser = userRepository.save(user);
         }
+
         return modelMapper.map(savedUser, UserResponse.class);
     }
 
@@ -82,21 +74,18 @@ public class UserServiceImpl implements UserService {
         UserDetails userDetail = (UserDetails) authentication.getPrincipal();
         String usernameFromAccessToken = userDetail.getUsername();
         UserInfo user = userRepository.findByUsername(usernameFromAccessToken);
+        if (user == null) {
+            throw new NoSuchElementException("User not found for username: " + usernameFromAccessToken);
+        }
         return modelMapper.map(user, UserResponse.class);
     }
 
     @Override
     public List<UserResponse> getAllUser() {
         List<UserInfo> users = (List<UserInfo>) userRepository.findAll();
-        Type setOfDTOsType = new TypeToken<List<UserResponse>>(){}.getType();
+        Type setOfDTOsType = new TypeToken<List<UserResponse>>() {
+        }.getType();
         return modelMapper.map(users, setOfDTOsType);
     }
-
-    @Override
-    public String logout(HttpServletRequest request) {
-        //String token = jwtService.extractTokenFromRequest(request);
-        tokenBlacklistService.addToBlacklist(request);
-        // Clear any session-related data if necessary
-        return "Logged out successfully";
-    }
 }
+
