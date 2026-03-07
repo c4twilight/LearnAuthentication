@@ -24,6 +24,7 @@ public class JwtService {
 
     public JwtService(
             @Value("${security.jwt.secret}") String secret,
+            // 900000 ms = 15 minutes access token lifetime by default.
             @Value("${security.jwt.access-token-expiration-ms:900000}") long accessTokenExpirationMs
     ) {
         this.secret = secret;
@@ -77,6 +78,7 @@ public class JwtService {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(Instant.now().plusMillis(accessTokenExpirationMs)))
+                // HS256 uses a shared secret key (symmetric signing): same key signs and verifies.
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

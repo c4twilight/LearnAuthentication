@@ -20,6 +20,7 @@ public class RefreshTokenService {
     public RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
             UserRepository userRepository,
+            // 604800000 ms = 7 days refresh token lifetime by default.
             @Value("${security.jwt.refresh-token-expiration-ms:604800000}") long refreshTokenExpirationMs
     ) {
         this.refreshTokenRepository = refreshTokenRepository;

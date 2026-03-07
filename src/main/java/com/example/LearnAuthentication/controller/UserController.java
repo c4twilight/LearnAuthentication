@@ -10,18 +10,21 @@ import com.example.LearnAuthentication.service.JwtService;
 import com.example.LearnAuthentication.service.RefreshTokenService;
 import com.example.LearnAuthentication.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@Validated
 public class UserController {
 
     private final JwtService jwtService;
@@ -57,6 +60,13 @@ public class UserController {
         throw new UsernameNotFoundException("Invalid credentials");
     }
 
+    // Example: @Validated enables constraint checks on method params like @Min on path variables.
+    @GetMapping("/validate/id/{id}")
+    public ResponseEntity<String> validateIdExample(@PathVariable @Min(value = 1, message = "id must be >= 1") Long id) {
+        return ResponseEntity.ok("Valid id: " + id);
+    }
+
+    // Use hasRole('ADMIN') only when authorities are stored with ROLE_ prefix.
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/ping")
     public String test() {

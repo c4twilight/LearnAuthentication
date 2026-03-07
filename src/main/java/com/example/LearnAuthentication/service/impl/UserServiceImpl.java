@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse saveUser(UserRequest userRequest) {
         UserInfo user = modelMapper.map(userRequest, UserInfo.class);
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        // Using the shared PasswordEncoder bean keeps hashing strategy centralized and reusable.`r`n        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         UserInfo savedUser;
         if (userRequest.getId() != null) {
@@ -74,3 +74,4 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(users, setOfDTOsType);
     }
 }
+
