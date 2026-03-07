@@ -1,7 +1,7 @@
 package com.example.LearnAuthentication.service;
 
 import com.example.LearnAuthentication.entity.UserInfo;
-import com.example.LearnAuthentication.entity.Roles;
+import com.example.LearnAuthentication.entity.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,9 +21,9 @@ public class CustomUserDetails extends UserInfo implements UserDetails {
         this.password= byUsername.getPassword();
         List<GrantedAuthority> auths = new ArrayList<>();
 
-        for(Roles role : byUsername.getRoles()){
+        for(UserRole role : byUsername.getRoles()){
 
-            auths.add(new SimpleGrantedAuthority(role.getName().toString().toUpperCase()));
+            auths.add(new SimpleGrantedAuthority(role.getName().toUpperCase()));
         }
         this.authorities = auths;
     }
