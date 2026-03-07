@@ -31,8 +31,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse saveUser(UserRequest userRequest) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserDetails userDetail = (UserDetails) authentication.getPrincipal();
+//        String usernameFromAccessToken = userDetail.getUsername();
+//
+//        UserInfo currentUser = userRepository.findByUsername(usernameFromAccessToken);
+
+        // UserInfo savedUser = null;
+
+        // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        // String rawPassword = userRequest.getPassword();
+        // String encodedPassword = encoder.encode(rawPassword);
+
+        
         UserInfo user = modelMapper.map(userRequest, UserInfo.class);
-        // Using the shared PasswordEncoder bean keeps hashing strategy centralized and reusable.`r`n        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        // Using the shared PasswordEncoder bean keeps hashing strategy centralized and reusable.`r`n        
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         UserInfo savedUser;
         if (userRequest.getId() != null) {
