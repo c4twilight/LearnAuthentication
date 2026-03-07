@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                // Stateless JWT APIs usually disable CSRF because they do not use server-side sessions.
+                // Stateless JWT APIs usually disable CSRF because they do not use server-side sessions. //.csrf().disable()
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(
