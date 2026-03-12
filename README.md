@@ -117,6 +117,26 @@ curl --location "http://localhost:9090/api/v1/admin/hello" \
   --header "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
+## Postman collection
+
+Import:
+- `postman/LearnAuthentication-Keycloak.postman_collection.json`
+
+Suggested run order:
+1. `1) Get Admin Token`
+2. `2) Get User Token`
+3. `3) Public Hello`
+4. `4) User Hello (USER token)`
+5. `5) Admin Hello (ADMIN token)`
+6. `6) Admin Hello (USER token - expected 403)`
+
+The token requests auto-save `adminAccessToken` and `userAccessToken` variables.
+
+## Architecture diagram
+
+See:
+- `docs/keycloak-architecture.md`
+
 ## New Keycloak classes
 - `src/main/java/com/example/LearnAuthentication/config/KeycloakSecurityConfig.java`
 - `src/main/java/com/example/LearnAuthentication/config/KeycloakRoleConverter.java`

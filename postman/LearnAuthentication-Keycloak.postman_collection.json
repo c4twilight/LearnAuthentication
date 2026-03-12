@@ -1,0 +1,267 @@
+{
+  "info": {
+    "_postman_id": "0f2d5be8-a305-4963-b6b8-5aaf1295b8ab",
+    "name": "LearnAuthentication - Keycloak OAuth2 Demo",
+    "description": "Requests for Keycloak token generation and role-based endpoint testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1) Get Admin Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "client_id",
+              "value": "{{clientId}}",
+              "type": "text"
+            },
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "{{adminUsername}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{adminPassword}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{keycloakBaseUrl}}/realms/{{realm}}/protocol/openid-connect/token",
+          "host": [
+            "{{keycloakBaseUrl}}"
+          ],
+          "path": [
+            "realms",
+            "{{realm}}",
+            "protocol",
+            "openid-connect",
+            "token"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const data = pm.response.json();",
+              "pm.environment.set('adminAccessToken', data.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Get User Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "client_id",
+              "value": "{{clientId}}",
+              "type": "text"
+            },
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "{{userUsername}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{userPassword}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{keycloakBaseUrl}}/realms/{{realm}}/protocol/openid-connect/token",
+          "host": [
+            "{{keycloakBaseUrl}}"
+          ],
+          "path": [
+            "realms",
+            "{{realm}}",
+            "protocol",
+            "openid-connect",
+            "token"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const data = pm.response.json();",
+              "pm.environment.set('userAccessToken', data.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3) Public Hello",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiBaseUrl}}/api/v1/public/hello",
+          "host": [
+            "{{apiBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "public",
+            "hello"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4) User Hello (USER token)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBaseUrl}}/api/v1/user/hello",
+          "host": [
+            "{{apiBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "hello"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5) Admin Hello (ADMIN token)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBaseUrl}}/api/v1/admin/hello",
+          "host": [
+            "{{apiBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "hello"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6) Admin Hello (USER token - expected 403)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBaseUrl}}/api/v1/admin/hello",
+          "host": [
+            "{{apiBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "hello"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "keycloakBaseUrl",
+      "value": "http://localhost:8181"
+    },
+    {
+      "key": "apiBaseUrl",
+      "value": "http://localhost:9090"
+    },
+    {
+      "key": "realm",
+      "value": "spring-keycloak-realm"
+    },
+    {
+      "key": "clientId",
+      "value": "spring-keycloak-client-id"
+    },
+    {
+      "key": "adminUsername",
+      "value": "adminuser"
+    },
+    {
+      "key": "adminPassword",
+      "value": "password"
+    },
+    {
+      "key": "userUsername",
+      "value": "appuser"
+    },
+    {
+      "key": "userPassword",
+      "value": "password"
+    },
+    {
+      "key": "adminAccessToken",
+      "value": ""
+    },
+    {
+      "key": "userAccessToken",
+      "value": ""
+    }
+  ]
+}
