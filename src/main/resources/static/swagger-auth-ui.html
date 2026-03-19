@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Swagger UI</title>
+  <link rel="stylesheet" type="text/css" href="/swagger-ui/swagger-ui.css" />
+  <link rel="icon" type="image/png" href="/swagger-ui/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/swagger-ui/favicon-16x16.png" sizes="16x16" />
+  <style>
+    .top-link { position: fixed; top: 8px; right: 12px; z-index: 9999; font-family: Arial, sans-serif; font-size: 13px; }
+    .top-link a { color: #0f766e; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="top-link"><a href="/swagger-login.html">Back To Swagger Login</a></div>
+<div id="swagger-ui"></div>
+
+<script src="/swagger-ui/swagger-ui-bundle.js" charset="UTF-8"></script>
+<script src="/swagger-ui/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+<script>
+  window.onload = function () {
+    var TOKEN_KEY = "learn_auth_swagger_token";
+
+    function normalizeToken(raw) {
+      var token = (raw || "").trim();
+      if (token.toLowerCase().startsWith("bearer ")) {
+        token = token.substring(7).trim();
+      }
+      return token;
+    }
+
+    function getToken() {
+      return normalizeToken(localStorage.getItem(TOKEN_KEY));
+    }
+
+    window.ui = SwaggerUIBundle({
+      configUrl: "/v3/api-docs/swagger-config",
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout",
+      persistAuthorization: true,
+      validatorUrl: "",
+      requestInterceptor: function (request) {
+        var token = getToken();
+        if (token) {
+          request.headers = request.headers || {};
+          request.headers.Authorization = "Bearer " + token;
+        }
+        return request;
+      },
+      onComplete: function () {
+        var token = getToken();
+        if (!token || !window.ui || !window.ui.authActions) {
+          return;
+        }
+
+        var authPayload = {
+          bearerAuth: {
+            name: "bearerAuth",
+            schema: {
+              type: "http",
+              in: "header",
+              scheme: "bearer",
+              bearerFormat: "JWT"
+            },
+            value: token
+          }
+        };
+
+        window.ui.authActions.authorize(authPayload);
+      }
+    });
+  };
+</script>
+</body>
+</html>

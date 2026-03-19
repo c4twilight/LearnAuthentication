@@ -104,7 +104,7 @@
         }
 
         saveToken(normalizedToken);
-        var swaggerWindow = window.open("/swagger-ui/index.html", "_blank");
+        var swaggerWindow = window.open("/swagger-auth-ui.html", "_blank");
         if (!swaggerWindow) {
             setError("Popup blocked. Please allow popups for localhost.");
             return;

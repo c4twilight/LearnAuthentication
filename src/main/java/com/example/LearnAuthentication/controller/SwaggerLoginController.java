@@ -10,4 +10,9 @@ public class SwaggerLoginController {
     public String swaggerLoginPage() {
         return "redirect:/swagger-login.html";
     }
+
+    @GetMapping({"/swagger-ui/index.html", "/swagger-ui.html"})
+    public String swaggerUiPage() {
+        return "redirect:/swagger-auth-ui.html";
+    }
 }

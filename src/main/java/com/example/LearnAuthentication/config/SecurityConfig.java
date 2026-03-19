@@ -66,6 +66,7 @@ public class SecurityConfig {
                         authorize.requestMatchers(
                                         "/swagger-login",
                                         "/swagger-login.html",
+                                        "/swagger-auth-ui.html",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/v3/api-docs/**"
@@ -75,6 +76,7 @@ public class SecurityConfig {
                         authorize.requestMatchers(
                                         "/swagger-login",
                                         "/swagger-login.html",
+                                        "/swagger-auth-ui.html",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/v3/api-docs/**"
