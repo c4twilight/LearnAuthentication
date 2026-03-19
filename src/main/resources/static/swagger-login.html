@@ -118,11 +118,34 @@
         return value;
     }
 
-    function openSwaggerAndAuthorize(token) {
+    async function validateToken(token) {
+        try {
+            var response = await fetch("/api/v1/ping1", {
+                method: "GET",
+                headers: { "Authorization": "Bearer " + token }
+            });
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function openSwaggerAndAuthorize(token, options) {
+        var settings = options || {};
+        var shouldValidate = settings.validate !== false;
         var normalizedToken = normalizeToken(token);
         if (!normalizedToken) {
             setError("Token is empty.");
             return;
+        }
+
+        if (shouldValidate) {
+            setStatus("Validating token...");
+            var isValid = await validateToken(normalizedToken);
+            if (!isValid) {
+                setError("Invalid or expired JWT token.");
+                return;
+            }
         }
 
         saveToken(normalizedToken);
@@ -173,7 +196,7 @@
             setError("Please paste a JWT token first.");
             return;
         }
-        setSuccess("JWT stored. Opening Swagger...");
+        setSuccess("JWT received. Checking token...");
         setStatus("Trying to open Swagger using pasted token.");
         openSwaggerAndAuthorize(token);
     });
@@ -216,7 +239,7 @@
             }
 
             setSuccess("Login successful. Opening Swagger...");
-            openSwaggerAndAuthorize(payload.accessToken);
+            openSwaggerAndAuthorize(payload.accessToken, { validate: false });
         } catch (error) {
             setError(error && error.message ? error.message : "Unable to login");
         } finally {
