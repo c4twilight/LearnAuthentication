@@ -5,166 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Swagger Login</title>
     <style>
-        :root {
-            --bg: #f3f7f9;
-            --card: #ffffff;
-            --text: #14212e;
-            --muted: #5e6b78;
-            --accent: #0f766e;
-            --danger: #b91c1c;
-            --border: #d7e0e7;
-        }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top right, #e2f7f4, var(--bg));
-            color: var(--text);
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 16px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(20, 33, 46, 0.08);
-            padding: 24px;
-        }
-
-        h1 {
-            margin: 0 0 8px;
-            font-size: 24px;
-        }
-
-        p {
-            margin: 0 0 18px;
-            color: var(--muted);
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            margin: 12px 0 6px;
-        }
-
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 16px;
-            padding: 10px 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffffff;
-            background: var(--accent);
-            cursor: pointer;
-        }
-
-        .secondary {
-            background: #334155;
-            margin-top: 10px;
-        }
-
-        .hint {
-            margin-top: 10px;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .error {
-            margin-top: 10px;
-            color: var(--danger);
-            font-size: 13px;
-            min-height: 18px;
-        }
+        :root { --bg:#f3f7f9; --card:#fff; --text:#14212e; --muted:#5e6b78; --accent:#0f766e; --neutral:#334155; --danger:#b91c1c; --ok:#166534; --border:#d7e0e7; }
+        body { margin:0; font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; background:radial-gradient(circle at top right,#e2f7f4,var(--bg)); color:var(--text); min-height:100vh; display:grid; place-items:center; padding:16px; }
+        .card { width:100%; max-width:460px; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 10px 30px rgba(20,33,46,.08); padding:24px; }
+        h1 { margin:0 0 8px; font-size:24px; }
+        p { margin:0 0 16px; color:var(--muted); }
+        .section { margin-top:16px; padding-top:10px; border-top:1px solid var(--border); }
+        .section h2 { margin:0 0 8px; font-size:16px; }
+        label { display:block; font-size:14px; margin:10px 0 6px; }
+        input, textarea { width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:14px; }
+        textarea { min-height:90px; resize:vertical; }
+        button { width:100%; margin-top:10px; padding:10px 12px; border:none; border-radius:10px; font-size:14px; font-weight:600; color:#fff; background:var(--accent); cursor:pointer; }
+        .secondary { background:var(--neutral); }
+        .error { margin-top:10px; min-height:18px; color:var(--danger); font-size:13px; }
+        .success { margin-top:10px; min-height:18px; color:var(--ok); font-size:13px; }
+        .hint { margin-top:10px; font-size:12px; color:var(--muted); }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>Swagger Auth</h1>
-    <p>Login once and open Swagger already authenticated.</p>
+    <p>Option 1: login with username/password. Option 2: paste an existing JWT.</p>
 
-    <form id="loginForm">
-        <label for="username">Username</label>
-        <input id="username" name="username" required />
+    <div class="section">
+        <h2>Option 1: Login Credentials</h2>
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input id="username" name="username" required />
 
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required />
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required />
 
-        <button type="submit">Login And Open Swagger</button>
-    </form>
+            <button type="submit">Login And Open Swagger</button>
+        </form>
+    </div>
 
-    <button id="openSwagger" class="secondary" type="button">Open Swagger With Saved Token</button>
-    <button id="logoutSwagger" class="secondary" type="button">Logout From Swagger</button>
+    <div class="section">
+        <h2>Option 2: Use Existing JWT</h2>
+        <label for="jwtToken">JWT Token</label>
+        <textarea id="jwtToken" placeholder="Paste JWT access token here"></textarea>
+        <button id="useJwt" type="button">Use JWT And Open Swagger</button>
+    </div>
+
+    <div class="section">
+        <button id="openSwagger" class="secondary" type="button">Open Swagger With Saved Token</button>
+        <button id="logoutSwagger" class="secondary" type="button">Logout From Swagger</button>
+    </div>
 
     <div class="error" id="error"></div>
-    <div class="hint">Endpoint used: <code>/api/v1/login</code></div>
+    <div class="success" id="success"></div>
+    <div class="hint">Token is stored in browser local storage for Swagger only.</div>
 </div>
 
 <script>
-    (function () {
-        const TOKEN_KEY = "learn_auth_swagger_token";
-        const form = document.getElementById("loginForm");
-        const openSwaggerBtn = document.getElementById("openSwagger");
-        const logoutSwaggerBtn = document.getElementById("logoutSwagger");
-        const errorEl = document.getElementById("error");
+(function () {
+    var TOKEN_KEY = "learn_auth_swagger_token";
+    var REFRESH_KEY = "learn_auth_refresh_token";
 
-        function openSwagger() {
-            window.location.href = "/swagger-ui/index.html";
+    var form = document.getElementById("loginForm");
+    var openSwaggerBtn = document.getElementById("openSwagger");
+    var logoutSwaggerBtn = document.getElementById("logoutSwagger");
+    var useJwtBtn = document.getElementById("useJwt");
+    var jwtTokenField = document.getElementById("jwtToken");
+    var errorEl = document.getElementById("error");
+    var successEl = document.getElementById("success");
+
+    function setError(message) {
+        errorEl.textContent = message || "";
+        if (message) {
+            successEl.textContent = "";
         }
+    }
 
-        openSwaggerBtn.addEventListener("click", openSwagger);
-        logoutSwaggerBtn.addEventListener("click", function () {
-            localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem("learn_auth_refresh_token");
-            errorEl.textContent = "Swagger token cleared from browser storage.";
-        });
-
-        form.addEventListener("submit", async function (event) {
-            event.preventDefault();
+    function setSuccess(message) {
+        successEl.textContent = message || "";
+        if (message) {
             errorEl.textContent = "";
+        }
+    }
 
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value;
+    function openSwagger() {
+        window.location.href = "/swagger-ui/index.html";
+    }
 
-            try {
-                const response = await fetch("/api/v1/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username: username, password: password })
-                });
+    function saveToken(token) {
+        localStorage.setItem(TOKEN_KEY, token);
+    }
 
-                const payload = await response.json();
+    openSwaggerBtn.addEventListener("click", openSwagger);
 
-                if (!response.ok || !payload.accessToken) {
-                    throw new Error(payload.payload || payload.message || "Login failed");
-                }
+    logoutSwaggerBtn.addEventListener("click", function () {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
+        setSuccess("Swagger token cleared from browser storage.");
+    });
 
-                localStorage.setItem(TOKEN_KEY, payload.accessToken);
-                if (payload.token) {
-                    localStorage.setItem("learn_auth_refresh_token", payload.token);
-                }
+    useJwtBtn.addEventListener("click", function () {
+        var token = (jwtTokenField.value || "").trim();
+        if (!token) {
+            setError("Please paste a JWT token first.");
+            return;
+        }
+        saveToken(token);
+        setSuccess("JWT stored. Opening Swagger...");
+        openSwagger();
+    });
 
-                openSwagger();
-            } catch (error) {
-                errorEl.textContent = error.message || "Unable to login";
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        setError("");
+
+        var username = document.getElementById("username").value.trim();
+        var password = document.getElementById("password").value;
+
+        try {
+            var response = await fetch("/api/v1/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: username, password: password })
+            });
+
+            var payload = await response.json();
+
+            if (!response.ok || !payload.accessToken) {
+                throw new Error(payload.payload || payload.message || "Login failed");
             }
-        });
-    })();
+
+            saveToken(payload.accessToken);
+            if (payload.token) {
+                localStorage.setItem(REFRESH_KEY, payload.token);
+            }
+
+            setSuccess("Login successful. Opening Swagger...");
+            openSwagger();
+        } catch (error) {
+            setError(error.message || "Unable to login");
+        }
+    });
+})();
 </script>
 </body>
 </html>

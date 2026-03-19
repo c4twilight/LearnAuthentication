@@ -4,6 +4,17 @@
     var maxAttempts = 80;
     var intervalMs = 250;
 
+    function preAuthorize(token) {
+        if (!window.ui || typeof window.ui.preauthorizeApiKey !== "function") {
+            return false;
+        }
+
+        // Support both names if scheme changes across branches.
+        window.ui.preauthorizeApiKey("bearerAuth", token);
+        window.ui.preauthorizeApiKey("bearer-key", token);
+        return true;
+    }
+
     function injectToken() {
         var token = localStorage.getItem(TOKEN_KEY);
         if (!token) {
@@ -12,14 +23,7 @@
 
         var timer = setInterval(function () {
             attempts += 1;
-
-            if (window.ui && typeof window.ui.preauthorizeApiKey === "function") {
-                window.ui.preauthorizeApiKey("bearerAuth", token);
-                clearInterval(timer);
-                return;
-            }
-
-            if (attempts >= maxAttempts) {
+            if (preAuthorize(token) || attempts >= maxAttempts) {
                 clearInterval(timer);
             }
         }, intervalMs);
