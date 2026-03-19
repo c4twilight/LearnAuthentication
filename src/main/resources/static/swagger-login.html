@@ -84,15 +84,60 @@
         }
     }
 
-    function openSwagger() {
-        window.location.href = "/swagger-ui/index.html";
-    }
-
     function saveToken(token) {
         localStorage.setItem(TOKEN_KEY, token);
     }
 
-    openSwaggerBtn.addEventListener("click", openSwagger);
+    function normalizeToken(token) {
+        var value = (token || "").trim();
+        if (value.toLowerCase().startsWith("bearer ")) {
+            value = value.substring(7).trim();
+        }
+        return value;
+    }
+
+    function openSwaggerAndAuthorize(token) {
+        var normalizedToken = normalizeToken(token);
+        if (!normalizedToken) {
+            setError("Token is empty.");
+            return;
+        }
+
+        saveToken(normalizedToken);
+        var swaggerWindow = window.open("/swagger-ui/index.html", "_blank");
+        if (!swaggerWindow) {
+            setError("Popup blocked. Please allow popups for localhost.");
+            return;
+        }
+
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            try {
+                if (swaggerWindow.closed) {
+                    clearInterval(timer);
+                    return;
+                }
+                if (swaggerWindow.ui && typeof swaggerWindow.ui.preauthorizeApiKey === "function") {
+                    swaggerWindow.ui.preauthorizeApiKey("bearerAuth", normalizedToken);
+                    setSuccess("Swagger opened and token injected.");
+                    clearInterval(timer);
+                    return;
+                }
+            } catch (error) {
+                // Ignore temporary access errors until Swagger fully loads.
+            }
+
+            if (attempts >= 120) {
+                clearInterval(timer);
+                setSuccess("Swagger opened. If token was not auto-filled, click Authorize once.");
+            }
+        }, 250);
+    }
+
+    openSwaggerBtn.addEventListener("click", function () {
+        openSwaggerAndAuthorize(localStorage.getItem(TOKEN_KEY));
+    });
 
     logoutSwaggerBtn.addEventListener("click", function () {
         localStorage.removeItem(TOKEN_KEY);
@@ -106,9 +151,8 @@
             setError("Please paste a JWT token first.");
             return;
         }
-        saveToken(token);
         setSuccess("JWT stored. Opening Swagger...");
-        openSwagger();
+        openSwaggerAndAuthorize(token);
     });
 
     form.addEventListener("submit", async function (event) {
@@ -137,7 +181,7 @@
             }
 
             setSuccess("Login successful. Opening Swagger...");
-            openSwagger();
+            openSwaggerAndAuthorize(payload.accessToken);
         } catch (error) {
             setError(error.message || "Unable to login");
         }
