@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swagger Login</title>
+    <style>
+        :root {
+            --bg: #f3f7f9;
+            --card: #ffffff;
+            --text: #14212e;
+            --muted: #5e6b78;
+            --accent: #0f766e;
+            --danger: #b91c1c;
+            --border: #d7e0e7;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top right, #e2f7f4, var(--bg));
+            color: var(--text);
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(20, 33, 46, 0.08);
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        p {
+            margin: 0 0 18px;
+            color: var(--muted);
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin: 12px 0 6px;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .secondary {
+            background: #334155;
+            margin-top: 10px;
+        }
+
+        .hint {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .error {
+            margin-top: 10px;
+            color: var(--danger);
+            font-size: 13px;
+            min-height: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Swagger Auth</h1>
+    <p>Login once and open Swagger already authenticated.</p>
+
+    <form id="loginForm">
+        <label for="username">Username</label>
+        <input id="username" name="username" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required />
+
+        <button type="submit">Login And Open Swagger</button>
+    </form>
+
+    <button id="openSwagger" class="secondary" type="button">Open Swagger With Saved Token</button>
+    <button id="logoutSwagger" class="secondary" type="button">Logout From Swagger</button>
+
+    <div class="error" id="error"></div>
+    <div class="hint">Endpoint used: <code>/api/v1/login</code></div>
+</div>
+
+<script>
+    (function () {
+        const TOKEN_KEY = "learn_auth_swagger_token";
+        const form = document.getElementById("loginForm");
+        const openSwaggerBtn = document.getElementById("openSwagger");
+        const logoutSwaggerBtn = document.getElementById("logoutSwagger");
+        const errorEl = document.getElementById("error");
+
+        function openSwagger() {
+            window.location.href = "/swagger-ui/index.html";
+        }
+
+        openSwaggerBtn.addEventListener("click", openSwagger);
+        logoutSwaggerBtn.addEventListener("click", function () {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem("learn_auth_refresh_token");
+            errorEl.textContent = "Swagger token cleared from browser storage.";
+        });
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            errorEl.textContent = "";
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("/api/v1/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok || !payload.accessToken) {
+                    throw new Error(payload.payload || payload.message || "Login failed");
+                }
+
+                localStorage.setItem(TOKEN_KEY, payload.accessToken);
+                if (payload.token) {
+                    localStorage.setItem("learn_auth_refresh_token", payload.token);
+                }
+
+                openSwagger();
+            } catch (error) {
+                errorEl.textContent = error.message || "Unable to login";
+            }
+        });
+    })();
+</script>
+</body>
+</html>
