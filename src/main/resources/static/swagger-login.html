@@ -84,6 +84,13 @@
         }
     }
 
+    function extractMessage(payload) {
+        if (!payload || typeof payload !== "object") {
+            return "";
+        }
+        return payload.message || payload.error || payload.payload || "";
+    }
+
     function saveToken(token) {
         localStorage.setItem(TOKEN_KEY, token);
     }
@@ -169,10 +176,20 @@
                 body: JSON.stringify({ username: username, password: password })
             });
 
-            var payload = await response.json();
+            var raw = await response.text();
+            var payload = {};
+            if (raw) {
+                try {
+                    payload = JSON.parse(raw);
+                } catch (parseError) {
+                    payload = {};
+                }
+            }
 
             if (!response.ok || !payload.accessToken) {
-                throw new Error(payload.payload || payload.message || "Login failed");
+                var backendMessage = extractMessage(payload);
+                var statusMessage = "Login failed (" + response.status + ").";
+                throw new Error(backendMessage ? backendMessage : statusMessage);
             }
 
             saveToken(payload.accessToken);
@@ -183,7 +200,7 @@
             setSuccess("Login successful. Opening Swagger...");
             openSwaggerAndAuthorize(payload.accessToken);
         } catch (error) {
-            setError(error.message || "Unable to login");
+            setError(error && error.message ? error.message : "Unable to login");
         }
     });
 })();
