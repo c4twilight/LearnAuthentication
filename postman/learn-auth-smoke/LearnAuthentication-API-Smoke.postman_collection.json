@@ -1,0 +1,274 @@
+{
+  "info": {
+    "_postman_id": "6a7f4d85-8468-4b83-98c3-2804f07ca2e1",
+    "name": "LearnAuthentication - API Smoke",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Save User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"roles\": [\n    {\n      \"id\": 1,\n      \"name\": \"ADMIN\"\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/save",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "save"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.accessToken) { pm.environment.set('accessToken', jsonData.accessToken); }",
+              "if (jsonData.token) { pm.environment.set('refreshToken', jsonData.token); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "login"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Refresh Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.accessToken) { pm.environment.set('accessToken', jsonData.accessToken); }",
+              "if (jsonData.token) { pm.environment.set('refreshToken', jsonData.token); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{refreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/refreshToken",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "refreshToken"]
+        }
+      }
+    },
+    {
+      "name": "Protected - Ping1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ping1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ping1"]
+        }
+      }
+    },
+    {
+      "name": "Protected - Ping (ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ping",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ping"]
+        }
+      }
+    },
+    {
+      "name": "Protected - Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile"]
+        }
+      }
+    },
+    {
+      "name": "Protected - Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "users"]
+        }
+      }
+    },
+    {
+      "name": "Protected - Validate ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/validate/id/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "validate", "id", "1"]
+        }
+      }
+    },
+    {
+      "name": "Contributor - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Smoke Contributor\",\n  \"mobile\": \"9999999999\",\n  \"email\": \"smoke@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contributors/create",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "contributors", "create"]
+        }
+      }
+    },
+    {
+      "name": "Contributor - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contributors",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "contributors"]
+        }
+      }
+    },
+    {
+      "name": "Contributor - Get By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contributors/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "contributors", "1"]
+        }
+      }
+    },
+    {
+      "name": "Project - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"projectName\": \"Smoke Project\",\n  \"description\": \"Smoke test project\",\n  \"startDate\": \"2026-03-20T00:00:00.000+00:00\",\n  \"endDate\": \"2026-03-30T00:00:00.000+00:00\",\n  \"contributors\": []\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/projects/create",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "projects", "create"]
+        }
+      }
+    },
+    {
+      "name": "Project - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/projects",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "projects"]
+        }
+      }
+    },
+    {
+      "name": "Project - Get By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/projects/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "projects", "1"]
+        }
+      }
+    },
+    {
+      "name": "Project - Search Pages",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pageNo\": 0,\n  \"pageSize\": 10,\n  \"sortBy\": \"id\",\n  \"direction\": \"DESC\",\n  \"searchText\": \"Smoke\",\n  \"startDate\": null,\n  \"endDate\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/projects/pages",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "projects", "pages"]
+        }
+      }
+    }
+  ]
+}
