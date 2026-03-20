@@ -1,6 +1,7 @@
 package com.example.LearnAuthentication.service;
 
 import com.example.LearnAuthentication.entity.RefreshToken;
+import com.example.LearnAuthentication.entity.UserInfo;
 import com.example.LearnAuthentication.repository.RefreshTokenRepository;
 import com.example.LearnAuthentication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,11 +30,15 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(String username) {
-        RefreshToken refreshToken = RefreshToken.builder()
-                .userInfo(userRepository.findByUsername(username))
-                .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(refreshTokenExpirationMs))
-                .build();
+        UserInfo userInfo = Optional.ofNullable(userRepository.findByUsername(username))
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        // Keep a single refresh-token row per user and rotate token value on each login.
+        RefreshToken refreshToken = refreshTokenRepository.findByUserInfo(userInfo)
+                .orElse(RefreshToken.builder().userInfo(userInfo).build());
+
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenExpirationMs));
         return refreshTokenRepository.save(refreshToken);
     }
 

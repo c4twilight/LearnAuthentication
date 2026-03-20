@@ -9,6 +9,8 @@ import com.example.LearnAuthentication.entity.RefreshToken;
 import com.example.LearnAuthentication.service.JwtService;
 import com.example.LearnAuthentication.service.RefreshTokenService;
 import com.example.LearnAuthentication.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +47,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Authenticate user and issue tokens")
+    @SecurityRequirements
     public JwtResponseDTO authenticateAndGetToken(@Valid @RequestBody AuthRequestDTO authRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
@@ -97,6 +101,8 @@ public class UserController {
     }
 
     @PostMapping("/refreshToken")
+    @Operation(summary = "Issue a new access token using refresh token")
+    @SecurityRequirements
     public JwtResponseDTO refreshToken(@Valid @RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) {
         return refreshTokenService.findByToken(refreshTokenRequestDTO.getToken())
                 .map(refreshTokenService::verifyExpiration)

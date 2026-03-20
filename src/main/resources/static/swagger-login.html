@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swagger Login</title>
+    <style>
+        :root {
+            --bg: #f6faf7;
+            --bg-accent: #d8efe5;
+            --surface: #ffffff;
+            --surface-soft: #f5f9f7;
+            --text: #153129;
+            --muted: #4f6b63;
+            --primary: #0e7a63;
+            --primary-strong: #0a5f4d;
+            --neutral: #2f4a43;
+            --danger: #b42318;
+            --ok: #147d40;
+            --line: #cfe0d9;
+            --shadow: 0 28px 52px rgba(14, 63, 53, 0.14);
+            --font-main: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-main);
+            color: var(--text);
+            background:
+                radial-gradient(900px 460px at 12% -8%, var(--bg-accent), transparent 70%),
+                radial-gradient(600px 320px at 100% 100%, #d3ece2, transparent 70%),
+                var(--bg);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .layout {
+            width: min(1080px, 100%);
+            margin: 0 auto;
+            min-height: calc(100vh - 40px);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            align-content: center;
+        }
+
+        .intro {
+            background: linear-gradient(145deg, #0f6f5b 0%, #0b5b4b 100%);
+            color: #eefaf6;
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            animation: floatIn 420ms ease-out;
+        }
+
+        .intro::after {
+            content: "";
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 999px;
+            right: -80px;
+            top: -80px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .intro h1 {
+            margin: 14px 0 10px;
+            font-size: clamp(28px, 4.8vw, 38px);
+            line-height: 1.08;
+        }
+
+        .intro p {
+            margin: 0;
+            color: rgba(238, 250, 246, 0.92);
+            max-width: 56ch;
+            line-height: 1.5;
+        }
+
+        .summary {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            background: rgba(255, 255, 255, 0.1);
+            color: #eefaf6;
+            padding: 7px 11px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .card {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+            animation: floatIn 520ms ease-out;
+        }
+
+        .card-head h2 {
+            margin: 0 0 6px;
+            font-size: 23px;
+            line-height: 1.2;
+        }
+
+        .card-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .grid {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: 1fr;
+        }
+
+        .section {
+            background: var(--surface-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .section h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: var(--primary-strong);
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 12px 0 6px;
+            color: var(--neutral);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #b9d3c9;
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text);
+            background: #ffffff;
+            transition: border-color 140ms ease, box-shadow 140ms ease;
+            font-family: var(--font-main);
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 122, 99, 0.16);
+        }
+
+        textarea {
+            min-height: 102px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 11px;
+            padding: 11px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: transform 120ms ease, filter 120ms ease, opacity 120ms ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            filter: saturate(1.06);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.72;
+            transform: none;
+        }
+
+        .actions {
+            display: grid;
+            gap: 10px;
+        }
+
+        .secondary {
+            background: linear-gradient(135deg, #355b50 0%, #2e4c43 100%);
+        }
+
+        .messages {
+            margin-top: 12px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .error,
+        .success,
+        .status {
+            min-height: 20px;
+            border-radius: 11px;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .error:not(:empty),
+        .success:not(:empty),
+        .status:not(:empty) {
+            padding: 9px 11px;
+            border: 1px solid transparent;
+        }
+
+        .error {
+            color: var(--danger);
+        }
+
+        .error:not(:empty) {
+            background: #fff3f1;
+            border-color: #f7cdc7;
+        }
+
+        .success {
+            color: var(--ok);
+        }
+
+        .success:not(:empty) {
+            background: #f2fbf5;
+            border-color: #bdebcf;
+        }
+
+        .status {
+            color: var(--neutral);
+        }
+
+        .status:not(:empty) {
+            background: #eff7f4;
+            border-color: #c5ddd4;
+        }
+
+        .hint {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (min-width: 920px) {
+            .layout {
+                grid-template-columns: 1.02fr 1fr;
+                gap: 20px;
+            }
+
+            .intro,
+            .card {
+                min-height: 640px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .section.actions {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <section class="intro">
+        <span class="badge">LearnAuthentication</span>
+        <h1>Swagger Access Gateway</h1>
+        <p>
+            Keep API docs protected, but make local testing smooth. Use credentials or a JWT,
+            then open Swagger pre-authorized.
+        </p>
+        <div class="summary">
+            <span class="chip">POST /api/v1/login</span>
+            <span class="chip">GET /api/v1/ping1 token check</span>
+            <span class="chip">Auto-inject Bearer token</span>
+        </div>
+    </section>
+
+    <div class="card">
+        <div class="card-head">
+            <h2>Authenticate Swagger</h2>
+            <p>Choose one method. Existing logic and security checks remain unchanged.</p>
+        </div>
+
+        <div class="grid">
+            <div class="section">
+                <h3>Option 1 · Credentials</h3>
+                <form id="loginForm">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" autocomplete="username" required />
+
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+                    <button type="submit">Login And Open Swagger</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Option 2 · JWT Token</h3>
+                <label for="jwtToken">JWT Token</label>
+                <textarea id="jwtToken" placeholder="Paste access token (with or without Bearer prefix)"></textarea>
+                <button id="useJwt" type="button">Use JWT And Open Swagger</button>
+            </div>
+
+            <div class="section actions">
+                <h3>Session Controls</h3>
+                <button id="openSwagger" class="secondary" type="button">Open Swagger With Saved Token</button>
+                <button id="logoutSwagger" class="secondary" type="button">Logout From Swagger</button>
+            </div>
+        </div>
+
+        <div class="messages">
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+            <div class="status" id="status"></div>
+        </div>
+
+        <div class="hint">Token is stored in browser local storage for Swagger only.</div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var TOKEN_KEY = "learn_auth_swagger_token";
+    var REFRESH_KEY = "learn_auth_refresh_token";
+
+    var form = document.getElementById("loginForm");
+    var openSwaggerBtn = document.getElementById("openSwagger");
+    var logoutSwaggerBtn = document.getElementById("logoutSwagger");
+    var useJwtBtn = document.getElementById("useJwt");
+    var jwtTokenField = document.getElementById("jwtToken");
+    var errorEl = document.getElementById("error");
+    var successEl = document.getElementById("success");
+    var statusEl = document.getElementById("status");
+    var loginSubmitBtn = form.querySelector("button[type='submit']");
+
+    function setStatus(message) {
+        statusEl.textContent = message || "";
+    }
+
+    function setLoading(isLoading) {
+        loginSubmitBtn.disabled = isLoading;
+        loginSubmitBtn.textContent = isLoading ? "Authenticating..." : "Login And Open Swagger";
+    }
+
+    function setError(message) {
+        errorEl.textContent = message || "";
+        if (message) {
+            successEl.textContent = "";
+            setStatus("Login failed.");
+        }
+    }
+
+    function setSuccess(message) {
+        successEl.textContent = message || "";
+        if (message) {
+            errorEl.textContent = "";
+            setStatus("Login successful.");
+        }
+    }
+
+    function extractMessage(payload) {
+        if (!payload || typeof payload !== "object") {
+            return "";
+        }
+        return payload.message || payload.error || payload.payload || "";
+    }
+
+    function saveToken(token) {
+        localStorage.setItem(TOKEN_KEY, token);
+    }
+
+    function normalizeToken(token) {
+        var value = (token || "").trim();
+        if (value.toLowerCase().startsWith("bearer ")) {
+            value = value.substring(7).trim();
+        }
+        return value;
+    }
+
+    async function validateToken(token) {
+        try {
+            var response = await fetch("/api/v1/ping1", {
+                method: "GET",
+                headers: { "Authorization": "Bearer " + token }
+            });
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function openSwaggerAndAuthorize(token, options) {
+        var settings = options || {};
+        var shouldValidate = settings.validate !== false;
+        var normalizedToken = normalizeToken(token);
+        if (!normalizedToken) {
+            setError("Token is empty.");
+            return;
+        }
+
+        if (shouldValidate) {
+            setStatus("Validating token...");
+            var isValid = await validateToken(normalizedToken);
+            if (!isValid) {
+                setError("Invalid or expired JWT token.");
+                return;
+            }
+        }
+
+        saveToken(normalizedToken);
+        var swaggerWindow = window.open("/swagger-auth-ui.html", "_blank");
+        if (!swaggerWindow) {
+            setError("Popup blocked. Please allow popups for localhost.");
+            return;
+        }
+
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            try {
+                if (swaggerWindow.closed) {
+                    clearInterval(timer);
+                    return;
+                }
+                if (swaggerWindow.ui && typeof swaggerWindow.ui.preauthorizeApiKey === "function") {
+                    swaggerWindow.ui.preauthorizeApiKey("bearerAuth", normalizedToken);
+                    setSuccess("Swagger opened and token injected.");
+                    clearInterval(timer);
+                    return;
+                }
+            } catch (error) {
+                // Ignore temporary access errors until Swagger fully loads.
+            }
+
+            if (attempts >= 120) {
+                clearInterval(timer);
+                setSuccess("Swagger opened. If token was not auto-filled, click Authorize once.");
+            }
+        }, 250);
+    }
+
+    openSwaggerBtn.addEventListener("click", function () {
+        openSwaggerAndAuthorize(localStorage.getItem(TOKEN_KEY));
+    });
+
+    logoutSwaggerBtn.addEventListener("click", function () {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
+        setSuccess("Swagger token cleared from browser storage.");
+    });
+
+    useJwtBtn.addEventListener("click", function () {
+        var token = (jwtTokenField.value || "").trim();
+        if (!token) {
+            setError("Please paste a JWT token first.");
+            return;
+        }
+        setSuccess("JWT received. Checking token...");
+        setStatus("Trying to open Swagger using pasted token.");
+        openSwaggerAndAuthorize(token);
+    });
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        setError("");
+        setStatus("Calling /api/v1/login...");
+        setLoading(true);
+
+        var username = document.getElementById("username").value.trim();
+        var password = document.getElementById("password").value;
+
+        try {
+            var response = await fetch("/api/v1/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: username, password: password })
+            });
+
+            var raw = await response.text();
+            var payload = {};
+            if (raw) {
+                try {
+                    payload = JSON.parse(raw);
+                } catch (parseError) {
+                    payload = {};
+                }
+            }
+
+            if (!response.ok || !payload.accessToken) {
+                var backendMessage = extractMessage(payload);
+                var statusMessage = "Login failed (" + response.status + ").";
+                throw new Error(backendMessage ? backendMessage : statusMessage);
+            }
+
+            saveToken(payload.accessToken);
+            if (payload.token) {
+                localStorage.setItem(REFRESH_KEY, payload.token);
+            }
+
+            setSuccess("Login successful. Opening Swagger...");
+            openSwaggerAndAuthorize(payload.accessToken, { validate: false });
+        } catch (error) {
+            setError(error && error.message ? error.message : "Unable to login");
+        } finally {
+            setLoading(false);
+        }
+    });
+})();
+</script>
+</body>
+</html>
